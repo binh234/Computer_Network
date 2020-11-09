@@ -1,5 +1,6 @@
 from random import randint
 import sys, traceback, threading, socket
+import time
 
 from VideoStream import VideoStream
 from RtpPacket import RtpPacket
@@ -23,9 +24,17 @@ class ServerWorker:
 	
 	def __init__(self, clientInfo):
 		self.clientInfo = clientInfo
+		self.time_sent = 0
 		
 	def run(self):
 		threading.Thread(target=self.recvRtspRequest).start()
+
+	def start_counter(self):
+		self.start = time.clock()
+
+	def stop_counter(self):
+		self.stop = time.clock()
+		self.time_sent += self.stop - self.start
 	
 	def recvRtspRequest(self):
 		"""Receive RTSP request from the client."""
@@ -83,7 +92,7 @@ class ServerWorker:
 				
 				# Create a new thread and start sending RTP packets
 				self.clientInfo['event'] = threading.Event()
-				self.clientInfo['worker']= threading.Thread(target=self.sendRtp) 
+				self.clientInfo['worker'] = threading.Thread(target=self.sendRtp) 
 				self.clientInfo['worker'].start()
 		
 		# Process PAUSE request
@@ -106,14 +115,21 @@ class ServerWorker:
 			
 			# Close the RTP socket
 			self.clientInfo['rtpSocket'].close()
+			fileSize = self.clientInfo['videoStream'].fileSize()
+			print("Client port:", self.clientInfo['rtpPort'])
+			print("File size: {} bytes".format(fileSize))
+			print("Time sent: {:.2f} sec".format(self.time_sent))
+			print("Video data rate: {:.2f} bytes/second".format(fileSize / self.time_sent))
 			
 	def sendRtp(self):
 		"""Send RTP packets over UDP."""
+		self.start_counter()
 		while True:
 			self.clientInfo['event'].wait(0.05) 
 			
 			# Stop sending if request is PAUSE or TEARDOWN
-			if self.clientInfo['event'].isSet(): 
+			if self.clientInfo['event'].isSet():
+				self.stop_counter() 
 				break 
 				
 			data = self.clientInfo['videoStream'].nextFrame()
@@ -128,6 +144,9 @@ class ServerWorker:
 					#print('-'*60)
 					#traceback.print_exc(file=sys.stdout)
 					#print('-'*60)
+			else:
+				self.stop_counter()
+				break
 
 	def makeRtp(self, payload, frameNbr):
 		"""RTP-packetize the video data."""

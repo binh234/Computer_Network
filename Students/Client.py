@@ -281,7 +281,7 @@ class Client:
 		# Create a new datagram socket to receive RTP packets from the server
 		# self.rtpSocket = ...
 		self.rtpSocket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-		print("Create a new datagram socket to receive RTP packets from the server")
+		# print("Create a new datagram socket to receive RTP packets from the server")
 		
 		# Set the timeout value of the socket to 0.5sec
 		# ...

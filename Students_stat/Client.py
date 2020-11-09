@@ -35,6 +35,8 @@ class Client:
 		self.teardownAcked = 0
 		self.connectToServer()
 		self.frameNbr = 0
+		self.packetLoss = 0
+		self.lossStates = []
 		
 	def createWidgets(self):
 		"""Build GUI."""
@@ -75,6 +77,11 @@ class Client:
 		"""Teardown button handler."""
 		self.sendRtspRequest(self.TEARDOWN)		
 		self.master.destroy() # Close the gui window
+		print("Client port:", self.rtpPort)
+		print("Packet loss: {0}/{1}".format(self.packetLoss, self.frameNbr))
+		if self.packetLoss > 0:
+			print("Loss states: " + ", ".join([str(i) for i in self.lossStates]))
+
 		try:
 			os.remove(CACHE_FILE_NAME + str(self.sessionId) + CACHE_FILE_EXT) # Delete the cache image from video
 		except:
@@ -107,6 +114,9 @@ class Client:
 					print("Current Seq Num: " + str(currFrameNbr))
 										
 					if currFrameNbr > self.frameNbr: # Discard the late packet
+						if currFrameNbr > self.frameNbr + 1:
+							self.packetLoss += currFrameNbr - self.frameNbr
+							self.lossStates.append(currFrameNbr)
 						self.frameNbr = currFrameNbr
 						self.updateMovie(self.writeFrame(rtpPacket.getPayload()))
 			except:

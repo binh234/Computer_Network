@@ -1,3 +1,5 @@
+import os
+
 class VideoStream:
 	def __init__(self, filename):
 		self.filename = filename
@@ -22,4 +24,6 @@ class VideoStream:
 		"""Get frame number."""
 		return self.frameNum
 	
+	def fileSize(self):
+		return os.path.getsize(self.filename)
 	
