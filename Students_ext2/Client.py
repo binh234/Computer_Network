@@ -295,7 +295,6 @@ class Client:
 						message = "\n".join(lines[3:])
 						tkMessageBox.showinfo(title, message)
 		
-		print("Session: ", self.sessionId)
 
 	def openRtpPort(self):
 		"""Open RTP socket binded to a specified port."""

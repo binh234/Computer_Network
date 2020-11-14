@@ -281,8 +281,6 @@ class Client:
 						
 						# Flag the teardownAcked to close the socket.
 						self.teardownAcked = 1 
-		
-		print("Session: ", self.sessionId)
 
 	def openRtpPort(self):
 		"""Open RTP socket binded to a specified port."""

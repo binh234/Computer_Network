@@ -111,7 +111,7 @@ class ServerWorker:
 		# Process DESCRIBE request
 		elif requestType == self.DESCRIBE:
 			print("processing DESCRIBE\n")
-			descriptionData = "Type: Byte Stream\nEncoding: utf-8"
+			descriptionData = "Stream-Type: Byte Stream\nEncoding: utf-8"
 			self.replyRtsp(self.OK_200, seq[1], descriptionData)
 			
 	def sendRtp(self):
